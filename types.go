@@ -23,4 +23,5 @@ type MoveInfo struct {
 	DestPath   string
 	fileDir    string
 	fileName   string
+	fileExt    string
 }

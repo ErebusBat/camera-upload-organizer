@@ -5,6 +5,11 @@ import (
 	"os"
 )
 
+func init() {
+	RegisterDecoder(".jpg", decodeDateTakenExif)
+	RegisterDecoder(".jpeg", decodeDateTakenExif)
+}
+
 func decodeDateTakenExif(moveInfo *MoveInfo) error {
 	// fpath, fname := filepath.Split(filePath)
 	f, err := os.Open(moveInfo.SourcePath)

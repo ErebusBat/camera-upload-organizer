@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+func init() {
+	RegisterDecoder(".mov", decodeDateTakenFromFileName)
+	RegisterDecoder(".png", decodeDateTakenFromFileName)
+}
+
 // var reFilenameDateDecode *regexp.Regexp = regexp.MustCompile(`(?i)^(\d{4})-(\d{1,2})-(\d{1,2})[ 0-9\.tz]+\.[a-z]{1,5}$`)
 var reFilenameDateDecode *regexp.Regexp = regexp.MustCompile(`(?i)^(\d{4})-(\d{1,2})-(\d{1,2}) (\d{2})\.(\d{2})\.(\d{2}).[a-z]{1,5}$`)
 

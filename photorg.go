@@ -18,7 +18,8 @@ func OrganizeFiles(opts Options) (*ProcessedInfo, error) {
 		FilesMoved: make([]MoveInfo, 0, 50),
 		FilesError: make([]string, 0, 10),
 	}
-	// filepath.Walk(opts.SourcePath, walkVisit)
+
+	// use a closure so we can access opts instance
 	walkClosure := func(path string, info os.FileInfo, err error) error {
 		return walkVisit(&opts, path, info, err)
 	}
@@ -30,42 +31,52 @@ func OrganizeFiles(opts Options) (*ProcessedInfo, error) {
 	return &opts.processed, nil
 }
 
-func walkVisit(opts *Options, path string, info os.FileInfo, err error) error {
-	if info.IsDir() {
-		return nil
-	}
-
+func BuildMoveInfo(path string) MoveInfo {
 	fileDir, fileName := filepath.Split(path)
 	moveInfo := MoveInfo{
 		SourcePath: path,
 		fileDir:    fileDir,
 		fileName:   fileName,
+		fileExt:    filepath.Ext(path),
 	}
-	if isIgnoredFile(&moveInfo) {
+	return moveInfo
+}
+
+// filepath.Walk callback, not in main closure because of length
+func walkVisit(opts *Options, path string, info os.FileInfo, err error) error {
+	if info.IsDir() {
 		return nil
 	}
 
-	switch ext := filepath.Ext(path); {
-	case ext == ".jpg",
-		ext == ".jpeg":
-		decodeDateTakenExif(&moveInfo)
-	default:
-		decodeDateTakenFromFileName(&moveInfo)
+	// Build a MoveInfo and check to see if it is an ignored file
+	moveInfo := BuildMoveInfo(path)
+	if isIgnoredFile(&moveInfo) {
+		// No error (still want to traverse)
+		return nil
 	}
 
+	// Get Decoder and call it
+	dFunc, decoderRegistered := GetDecoder(moveInfo.fileExt)
+	if decoderRegistered {
+		dFunc(&moveInfo)
+	}
+
+	// Check to make sure we have a DateTaken
 	if moveInfo.DateTaken != nil {
 		pathSuffix := GetDateTimePathSuffix(&moveInfo)
 		moveInfo.DestPath = filepath.Join(opts.DestRoot, pathSuffix)
 		opts.processed.FilesMoved = append(opts.processed.FilesMoved, moveInfo)
 	} else {
+		opts.processed.FilesError = append(opts.processed.FilesError, path)
 		// Used to dump char codes (Icon file)
 		// if strings.HasPrefix(moveInfo.fileName, "Icon") {
-		// 	for _, c := range moveInfo.fileName {
-		// 		fmt.Printf(">%s< %d\n", string(c), c)
-		// 	}
+		//  for _, c := range moveInfo.fileName {
+		//    fmt.Printf(">%s< %d\n", string(c), c)
+		//  }
 		// }
-		opts.processed.FilesError = append(opts.processed.FilesError, path)
 	}
+
+	// Remember we are a callback for filepath.Walk, so return no error
 	return nil
 }
 
