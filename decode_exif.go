@@ -6,8 +6,17 @@ import (
 )
 
 func init() {
-	RegisterDecoder(".jpg", decodeDateTakenExif)
-	RegisterDecoder(".jpeg", decodeDateTakenExif)
+	handledExts := []string{
+		".jpg",
+		".jpeg",
+	}
+	for _, ext := range handledExts {
+		RegisterDecoderInst(&Decoder{
+			Ext:  ext,
+			Name: "Exif",
+			Func: decodeDateTakenExif,
+		})
+	}
 }
 
 func decodeDateTakenExif(moveInfo *MoveInfo) error {

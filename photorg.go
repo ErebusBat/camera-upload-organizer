@@ -56,10 +56,11 @@ func walkVisit(opts *Options, path string, info os.FileInfo, err error) error {
 	}
 
 	// Get Decoder and call it
-	dFunc, decoderRegistered := GetDecoder(moveInfo.fileExt)
-	if decoderRegistered {
-		dFunc(&moveInfo)
-	}
+	// dFunc, decoderRegistered := GetDecoder(moveInfo.fileExt)
+	// if decoderRegistered {
+	// 	dFunc(&moveInfo)
+	// }
+	RunDecoder(&moveInfo)
 
 	// Check to make sure we have a DateTaken
 	if moveInfo.DateTaken != nil {

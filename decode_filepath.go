@@ -7,8 +7,17 @@ import (
 )
 
 func init() {
-	RegisterDecoder(".mov", decodeDateTakenFromFileName)
-	RegisterDecoder(".png", decodeDateTakenFromFileName)
+	handledExts := []string{
+		".mov",
+		".png",
+	}
+	for _, ext := range handledExts {
+		RegisterDecoderInst(&Decoder{
+			Ext:  ext,
+			Name: "Filename",
+			Func: decodeDateTakenExif,
+		})
+	}
 }
 
 // var reFilenameDateDecode *regexp.Regexp = regexp.MustCompile(`(?i)^(\d{4})-(\d{1,2})-(\d{1,2})[ 0-9\.tz]+\.[a-z]{1,5}$`)
