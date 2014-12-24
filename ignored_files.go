@@ -8,6 +8,7 @@ import (
 var ignoreFiles map[string]byte
 
 func isIgnoredFile(moveInfo *MoveInfo) bool {
+	// return (moveInfo.fileExt != ".mov")
 	if ignoreFiles == nil {
 		setupIgnoredFiles()
 	}

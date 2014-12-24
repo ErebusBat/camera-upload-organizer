@@ -10,13 +10,7 @@ func init() {
 		".jpg",
 		".jpeg",
 	}
-	for _, ext := range handledExts {
-		RegisterDecoderInst(&Decoder{
-			Ext:  ext,
-			Name: "Exif",
-			Func: decodeDateTakenExif,
-		})
-	}
+	registerSystemDecoders(handledExts, 0, "Exif", decodeDateTakenExif)
 }
 
 func decodeDateTakenExif(moveInfo *MoveInfo) error {
@@ -34,7 +28,5 @@ func decodeDateTakenExif(moveInfo *MoveInfo) error {
 
 	dateTaken, _ := x.DateTime()
 	moveInfo.DateTaken = &dateTaken
-	// pathSuffix := GetDateTimePathSuffix(dateTaken, fname)
-	// applyFileSuffix(filePath, dateTaken, pathSuffix)
 	return nil
 }

@@ -21,9 +21,13 @@ func main() {
 	}
 
 	// Register override
-	// photorg.RegisterDecoder("zip", decodeDateTakenFromLStat)
-	// photorg.RegisterDecoder("mov", decodeDateTakenFromLStat)
-	// photorg.RegisterDecoder("png", decodeDateTakenFromLStat)
+	photorg.RegisterDecoder("zip", "LStat", decodeDateTakenFromLStat)
+	photorg.RegisterDecoder("mov", "LStat", decodeDateTakenFromLStat)
+	photorg.RegisterDecoder("png", "LStat", decodeDateTakenFromLStat)
+	photorg.RegisterDecoder("jpg", "LStat", decodeDateTakenFromLStat)
+
+	// dumpDecoderInfo("jpg")
+	// return
 
 	info, err := photorg.OrganizeFiles(options)
 	if err != nil {
@@ -38,6 +42,18 @@ func main() {
 	// 	fmt.Println(" -", f)
 	// 	// fmt.Printf(" - >%s<\n", f)
 	// }
+}
+
+func dumpDecoderInfo(ext string) {
+	decoders, haveAny := photorg.GetDecoders(ext)
+	if !haveAny {
+		fmt.Printf("No decoders registered >%s<\n", ext)
+		return
+	}
+	fmt.Println("Found", len(decoders), "decoders for", ext)
+	for _, dec := range decoders {
+		fmt.Printf(" - [%d] %s\n", dec.Priority, dec.Name)
+	}
 }
 
 func decodeDateTakenFromLStat(moveInfo *photorg.MoveInfo) error {

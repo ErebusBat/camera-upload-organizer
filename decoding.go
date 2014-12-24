@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"sort"
 	"strings"
 )
 
@@ -13,13 +14,37 @@ type Decoder struct {
 	Priority int
 	Ext      string
 	Name     string
+	isSystem bool
 }
 
-type decoderMap map[string][]Decoder
+type decoderSlice []Decoder
+type decoderMap map[string]decoderSlice
+
+// Len is part of sort.Interface.
+func (s decoderSlice) Len() int {
+	return len(s)
+}
+
+// Swap is part of sort.Interface.
+func (s decoderSlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
+func (s decoderSlice) Less(i, j int) bool {
+	lhs := s[i]
+	rhs := s[j]
+	return lhs.Priority < rhs.Priority
+}
 
 var decodeMap decoderMap
 
-// Can't use init() because it isn't invoked before RegisterDecoder is called from
+func init() {
+	if decodeMap == nil {
+		init_decoding()
+	}
+}
+
 // other files in this package
 func init_decoding() {
 	// decodeMap = make(map[string]Decoder)
@@ -35,14 +60,28 @@ func normalizeDecoderExtension(ext string) string {
 	return ext
 }
 
+func registerSystemDecoders(handledExts []string, priority int, name string, dFunc DecoderFunc) {
+	for _, ext := range handledExts {
+		RegisterDecoderInst(&Decoder{
+			Priority: priority,
+			isSystem: true,
+			Ext:      ext,
+			Name:     name,
+			Func:     dFunc,
+		})
+	}
+}
+
 // Registers a new decoder
-func RegisterDecoder(ext string, dFunc DecoderFunc) error {
+func RegisterDecoder(ext string, name string, dFunc DecoderFunc) error {
 	ext = normalizeDecoderExtension(ext)
 	newDecoder := Decoder{
+		isSystem: false,
 		Func:     dFunc,
 		Priority: math.MaxInt32,
 		Ext:      ext,
-		Name:     fmt.Sprintf("Anonymous %s decoder", ext),
+		// Name:     fmt.Sprintf("Anonymous %s decoder", ext),
+		Name: name,
 	}
 	return RegisterDecoderInst(&newDecoder)
 }
@@ -52,20 +91,22 @@ func RegisterDecoderInst(decoder *Decoder) error {
 		init_decoding()
 	}
 	ext := decoder.Ext
-	var decoders []Decoder
+	var decoders decoderSlice
 
 	if decoder.Name == "" {
 		return fmt.Errorf("You must specify a name for your encoder!")
 	}
+	// log.Printf("Registering Decoder %s for %s\n", decoder.Name, decoder.Ext)
+
+	decoder.Ext = normalizeDecoderExtension(decoder.Ext)
 
 	// Check to make sure it isn't already registerd
 	decoders = decodeMap[ext]
-	if decoders != nil {
-		// if decoders, alreadyReg := decodeMap[ext]; !alreadyReg {
-		// return fmt.Errorf("A decoder for >%s< has already been registered!", ext)
-		decoders = make([]Decoder, 0, 1)
+	if decoders == nil {
+		decoders = make(decoderSlice, 0, 1)
 	}
 	decoders = append(decoders, *decoder)
+	sort.Sort(decoders)
 	decodeMap[ext] = decoders
 	return nil
 }
@@ -79,7 +120,9 @@ func RunDecoder(moveInfo *MoveInfo) (wasRan bool) {
 	}
 
 	for _, decoder := range decoders {
-		log.Printf("[%s]: Invoking decoder: %s\n", moveInfo.fileName, decoder.Name)
+		if decoder.isSystem != true {
+			log.Printf("[%s]: Invoking decoder: %s\n", moveInfo.fileName, decoder.Name)
+		}
 		decoder.Func(moveInfo)
 
 		if moveInfo.DateTaken != nil {
@@ -91,4 +134,10 @@ func RunDecoder(moveInfo *MoveInfo) (wasRan bool) {
 	// If something had ran then it would have been caught as the last
 	// criteria of the for loop
 	return false
+}
+
+func GetDecoders(ext string) (decoders decoderSlice, ok bool) {
+	ext = normalizeDecoderExtension(ext)
+	decoders, ok = decodeMap[ext]
+	return
 }
