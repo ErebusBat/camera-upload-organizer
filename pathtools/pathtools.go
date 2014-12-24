@@ -2,6 +2,7 @@ package pathtools
 
 import (
 	"os"
+	"time"
 )
 
 func IsDir(path string) bool {
@@ -20,4 +21,15 @@ func IsFile(path string) bool {
 	// We can't just do !IsDir() because if path points to a non existant file
 	// then it would erroniously return true
 	return !fi.IsDir()
+}
+
+func ModTime(path string) *time.Time {
+	fi, err := os.Lstat(path)
+	if err != nil {
+		return nil
+	}
+	// We can't just do !IsDir() because if path points to a non existant file
+	// then it would erroniously return true
+	modTime := fi.ModTime()
+	return &modTime
 }
