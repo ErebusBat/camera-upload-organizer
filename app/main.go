@@ -2,6 +2,7 @@ package main
 
 import (
 	"../../photorg"
+	"../../photorg/pathtools"
 	"fmt"
 	"log"
 )
@@ -19,6 +20,9 @@ func main() {
 		DestRoot:   "/data/Dropbox/Photos/Photostream/",
 	}
 
+	// Register override
+	photorg.RegisterDecoder("zip", decodeDateTakenFromLStat)
+
 	info, err := photorg.OrganizeFiles(options)
 	if err != nil {
 		log.Fatal(err)
@@ -32,4 +36,9 @@ func main() {
 		fmt.Println(" -", f)
 		// fmt.Printf(" - >%s<\n", f)
 	}
+}
+
+func decodeDateTakenFromLStat(moveInfo *photorg.MoveInfo) error {
+	moveInfo.DateTaken = pathtools.ModTime(moveInfo.SourcePath)
+	return nil
 }
