@@ -132,16 +132,18 @@ func RunDecoder(moveInfo *MoveInfo) (wasRan bool) {
 		}
 		decoder.Func(moveInfo)
 
-		if moveInfo.DateTaken.Before(CutoffDate) {
-			log.Printf("[%s]: Decoder %s returned invalid date '%s'\n",
-				moveInfo.fileName,
-				decoder.Name,
-				moveInfo.DateTaken)
-			moveInfo.DateTaken = nil
-		}
-
 		if moveInfo.DateTaken != nil {
-			return true
+			// Make sure that the decoded date is A-Ok
+			if moveInfo.DateTaken.Before(CutoffDate) {
+				log.Printf("[%s]: Decoder %s returned invalid date '%s'\n",
+					moveInfo.fileName,
+					decoder.Name,
+					moveInfo.DateTaken)
+				moveInfo.DateTaken = nil
+			} else {
+				// Processing was OK
+				return true
+			}
 		}
 	}
 	log.Println("")
