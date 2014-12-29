@@ -2,7 +2,7 @@ package main
 
 import (
 	"../../photorg"
-	// "../../photorg/pathtools"
+	"../../photorg/pathtools"
 	"fmt"
 	"log"
 )
@@ -15,13 +15,16 @@ func main() {
 
 	fmt.Println("Photo Reorganizer")
 
+	// options := photorg.Options{
+	//   SourcePath: "/data/Dropbox/Camera Uploads/",
+	//   DestRoot:   "/data/Dropbox/Photos/Photostream/",
+	// }
 	options := photorg.Options{
-		SourcePath: "/data/Dropbox/Camera Uploads/",
-		DestRoot:   "/data/Dropbox/Photos/Photostream/",
+		SourcePath: "/data/void/dropb/cam",
+		DestRoot:   "/data/void/dropb/photostream",
 	}
 
 	// Register override
-	photorg.RegisterDecoder("zip", "LStat", decodeDateTakenFromLStat)
 	photorg.RegisterDecoder("mov", "LStat", decodeDateTakenFromLStat)
 	photorg.RegisterDecoder("png", "LStat", decodeDateTakenFromLStat)
 	photorg.RegisterDecoder("jpg", "LStat", decodeDateTakenFromLStat)
@@ -38,10 +41,10 @@ func main() {
 	// 	fmt.Println(" -", f.DestPath)
 	// }
 	fmt.Printf("%d Files Errored:\n", info.NumFilesError)
-	// for _, f := range info.FilesError {
-	// 	fmt.Println(" -", f)
-	// 	// fmt.Printf(" - >%s<\n", f)
-	// }
+	for _, f := range info.FilesError {
+		fmt.Println(" -", f)
+		// fmt.Printf(" - >%s<\n", f)
+	}
 }
 
 func dumpDecoderInfo(ext string) {
@@ -57,7 +60,7 @@ func dumpDecoderInfo(ext string) {
 }
 
 func decodeDateTakenFromLStat(moveInfo *photorg.MoveInfo) error {
-	// moveInfo.DateTaken = pathtools.ModTime(moveInfo.SourcePath)
+	moveInfo.DateTaken = pathtools.ModTime(moveInfo.SourcePath)
 	// log.Printf("%s -> %s\n", moveInfo.SourcePath, moveInfo.DateTaken)
 	return nil
 }

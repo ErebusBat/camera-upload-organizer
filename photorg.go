@@ -23,7 +23,9 @@ func OrganizeFiles(opts Options) (*ProcessedInfo, error) {
 	walkClosure := func(path string, info os.FileInfo, err error) error {
 		return walkVisit(&opts, path, info, err)
 	}
-	filepath.Walk(opts.SourcePath, walkClosure)
+	if err := filepath.Walk(opts.SourcePath, walkClosure); err != nil {
+		return nil, err
+	}
 
 	// Do counts for them, ease of API use
 	opts.processed.NumFilesMoved = len(opts.processed.FilesMoved)
@@ -66,7 +68,12 @@ func walkVisit(opts *Options, path string, info os.FileInfo, err error) error {
 	if moveInfo.DateTaken != nil {
 		pathSuffix := GetDateTimePathSuffix(&moveInfo)
 		moveInfo.DestPath = filepath.Join(opts.DestRoot, pathSuffix)
+		destDir, _ := filepath.Split(moveInfo.DestPath)
+		moveInfo.destDir = destDir
 		opts.processed.FilesMoved = append(opts.processed.FilesMoved, moveInfo)
+		if err := moveFile(&moveInfo); err != nil {
+			return err
+		}
 	} else {
 		opts.processed.FilesError = append(opts.processed.FilesError, path)
 		// Used to dump char codes (Icon file)

@@ -6,6 +6,7 @@ import (
 	"math"
 	"sort"
 	"strings"
+	"time"
 )
 
 type DecoderFunc func(*MoveInfo) error
@@ -19,6 +20,12 @@ type Decoder struct {
 
 type decoderSlice []Decoder
 type decoderMap map[string]decoderSlice
+
+var (
+	// Dates before cutoff will not be considered 'valid'
+	// CutoffDate time.Time
+	CutoffDate, _ = time.Parse("Jan 02 2006", "Jan 01 1980")
+)
 
 // Len is part of sort.Interface.
 func (s decoderSlice) Len() int {
@@ -124,6 +131,14 @@ func RunDecoder(moveInfo *MoveInfo) (wasRan bool) {
 			log.Printf("[%s]: Invoking decoder: %s\n", moveInfo.fileName, decoder.Name)
 		}
 		decoder.Func(moveInfo)
+
+		if moveInfo.DateTaken.Before(CutoffDate) {
+			log.Printf("[%s]: Decoder %s returned invalid date '%s'\n",
+				moveInfo.fileName,
+				decoder.Name,
+				moveInfo.DateTaken)
+			moveInfo.DateTaken = nil
+		}
 
 		if moveInfo.DateTaken != nil {
 			return true

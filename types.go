@@ -20,6 +20,7 @@ type ProcessedInfo struct {
 type MoveInfo struct {
 	SourcePath string
 	DateTaken  *time.Time
+	destDir    string
 	DestPath   string
 	fileDir    string
 	fileName   string
