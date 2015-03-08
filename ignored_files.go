@@ -1,9 +1,5 @@
 package photorg
 
-import (
-// "fmt"
-)
-
 // Ignore byte, just using byte for membership
 var ignoreFiles map[string]byte
 
@@ -17,7 +13,11 @@ func isIgnoredFile(moveInfo *MoveInfo) bool {
 }
 func setupIgnoredFiles() {
 	ignoreFiles = make(map[string]byte)
-	defaultIgnores := []string{".DS_Store", "Icon" + string(13)}
+	defaultIgnores := []string{
+		".DS_Store",
+		"Icon" + string(13), // Icon file has a CR in it's name
+		"config.toml",
+	}
 	for _, f := range defaultIgnores {
 		ignoreFiles[f] = '0'
 	}
