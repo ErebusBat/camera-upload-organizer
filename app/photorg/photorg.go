@@ -1,12 +1,13 @@
 package main
 
 import (
-	"../../photorg"
-	"../../photorg/pathtools"
 	"flag"
 	"fmt"
-	"github.com/BurntSushi/toml"
 	"log"
+
+	"../../../photorg"
+	"../../../photorg/pathtools"
+	"github.com/BurntSushi/toml"
 )
 
 func parseConfig(path string) (config *photorg.Options, err error) {
