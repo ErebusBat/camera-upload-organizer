@@ -1,9 +1,10 @@
 package photorg
 
 import (
-	. "./pathtools"
 	"log"
 	"os"
+
+	. "github.com/ErebusBat/camera-upload-organizer/pathtools"
 )
 
 func moveFile(moveInfo *MoveInfo) error {

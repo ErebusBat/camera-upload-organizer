@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"./pathtools"
+	"github.com/ErebusBat/camera-upload-organizer/pathtools"
 )
 
 // Main API Entry, used

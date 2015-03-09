@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"../../../photorg"
-	"../../../photorg/pathtools"
 	"github.com/BurntSushi/toml"
+	"github.com/ErebusBat/camera-upload-organizer"
+	"github.com/ErebusBat/camera-upload-organizer/pathtools"
 )
 
 func parseConfig(path string) (config *photorg.Options, err error) {
