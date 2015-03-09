@@ -30,6 +30,13 @@ You can specifc the name of the config file as the first argument:
 
 If no file is specified then the tool will look for a file named `config.toml` in the current working directory.
 
+## Building
+You can build from source:
+
+~~~ sh
+> ./build [platform]
+~~~
+
 ## Operation
 The `photorg` tool will move and all photos from the `SourcePath` into the `DestRoot`, creating a tree like:
 
