@@ -1,12 +1,20 @@
 # Camera Upload Organizer
 This is a quick and dirty little utility I wrote to mess around with Go and solve a problem.
 
-#### Background
+## The Problem
 I have the dropbox app on my wife and I's (is that correct?  English is hard) phone set to auto upload all of our photos.
 
-Dropbox puts these photos into the `/Camera Uploads` folder, which is great for backup but not ideal for sharing.  That is unfortunate because Dropbox actually has pretty good photo album ability, it just is not available for the Camera Uploads folder.
+Dropbox puts these photos into the `/Camera Uploads` folder, which is great for backup but not ideal for sharing as Dropbox does not allow you to create a public album from this folder.
 
-I have a public *Photostream* photo album that  I share with my family.  Given that I am not
+I have a public *Photostream* photo album that  I share with my family.  Given that I am not uploading any TMZ worthy pictures, by a matter of practice I want all my photos that both my wife and I take to upload into this album in a sane, sortable manner.
+
+## Installation
+
+~~~ sh
+$ go get -v github.com/ErebusBat/camera-upload-organizer/
+$ go install github.com/ErebusBat/camera-upload-organizer/app/photorg
+# Should now have $GOPATH/bin/photorg
+~~~
 
 ## Config
 The `photorg` (Photo Organizer) tool uses a very simple [TOML](https://github.com/toml-lang/toml) config file:
@@ -57,7 +65,7 @@ I set this up on my media server to run and move my pictures, always ensuring th
 
 
 ## Contributing
-1. Fork it!
+1. [Fork it!](https://github.com/ErebusBat/camera-upload-organizer/fork)
 2. Create your feature branch: `git checkout -b my-new-feature`
 3. Commit your changes: `git commit -am 'Add some feature'`
 4. Push to the branch: `git push origin my-new-feature`
@@ -71,3 +79,5 @@ I had a much uglier and simple version of this tool implemented as a [maid](http
 With go, I just compile and have a static binary that I scp to my server and bob is your uncle.
 
 Also it is fast... like lightning fast.
+
+You could even use something like [golang-geo](https://github.com/kellydunn/golang-geo) to perform actions on where the picture was taken at.
