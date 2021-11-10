@@ -24,6 +24,8 @@ type decoderMap map[string]decoderSlice
 var (
 	// Dates before cutoff will not be considered 'valid'
 	// CutoffDate time.Time
+	//
+	// First param is format
 	CutoffDate, _ = time.Parse("Jan 02 2006", "Jan 01 1980")
 )
 
@@ -87,8 +89,7 @@ func RegisterDecoder(ext string, name string, dFunc DecoderFunc) error {
 		Func:     dFunc,
 		Priority: math.MaxInt32,
 		Ext:      ext,
-		// Name:     fmt.Sprintf("Anonymous %s decoder", ext),
-		Name: name,
+		Name:     name,
 	}
 	return RegisterDecoderInst(&newDecoder)
 }
@@ -113,7 +114,7 @@ func RegisterDecoderInst(decoder *Decoder) error {
 		decoders = make(decoderSlice, 0, 1)
 	}
 	decoders = append(decoders, *decoder)
-	sort.Sort(decoders)
+	sort.Sort(decoders) // Make sure decoders are in priority order
 	decodeMap[ext] = decoders
 	return nil
 }
@@ -157,4 +158,31 @@ func GetDecoders(ext string) (decoders decoderSlice, ok bool) {
 	ext = normalizeDecoderExtension(ext)
 	decoders, ok = decodeMap[ext]
 	return
+}
+
+func RegisteredExtensions() (keys []string) {
+	for k := range decodeMap {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func DumpDecoderInfo(ext string) {
+	decoders, haveAny := GetDecoders(ext)
+	if !haveAny {
+		log.Printf("No decoders registered >%s<\n", ext)
+		return
+	}
+	log.Println("Found", len(decoders), "decoders for", ext)
+	for _, dec := range decoders {
+		log.Printf(" - [%d] %s\n", dec.Priority, dec.Name)
+	}
+}
+
+func DumpDecodersInfo() {
+	exts := RegisteredExtensions()
+	log.Printf("Found %d registered extensions: %v", len(exts), exts)
+	for _, ext := range exts {
+		DumpDecoderInfo(ext)
+	}
 }

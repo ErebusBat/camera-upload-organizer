@@ -8,6 +8,9 @@ import (
 
 func init() {
 	handledExts := []string{
+		".bmp",
+		".jpeg",
+		".jpg",
 		".mov",
 		".png",
 	}

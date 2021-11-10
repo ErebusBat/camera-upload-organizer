@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/BurntSushi/toml"
-	"github.com/ErebusBat/camera-upload-organizer"
+	photorg "github.com/ErebusBat/camera-upload-organizer"
 	"github.com/ErebusBat/camera-upload-organizer/pathtools"
 )
 
@@ -36,21 +36,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// options := photorg.Options{
-	//   SourcePath: "/data/Dropbox/Camera Uploads/",
-	//   DestRoot:   "/data/Dropbox/Photos/Photostream/",
-	// }
-	// options := photorg.Options{
-	//  SourcePath: "/data/void/dropb/cam",
-	//  DestRoot:   "/data/void/dropb/photostream",
-	// }
 
-	// Register override
-	photorg.RegisterDecoder("mov", "LStat", decodeDateTakenFromLStat)
-	photorg.RegisterDecoder("png", "LStat", decodeDateTakenFromLStat)
-	photorg.RegisterDecoder("jpg", "LStat", decodeDateTakenFromLStat)
+	// Register Fallbacks
+	for _, ext := range photorg.RegisteredExtensions() {
+		photorg.RegisterDecoder(ext, "LStat", decodeDateTakenFromLStat)
+	}
 
-	// dumpDecoderInfo("jpg")
+	// Debugging
+	// photorg.DumpDecodersInfo()
 	// return
 
 	info, err := photorg.OrganizeFiles(*options)
@@ -58,13 +51,9 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Printf("%d Files Moved:\n", info.NumFilesMoved)
-	// for _, f := range info.FilesMoved {
-	// 	fmt.Println(" -", f.DestPath)
-	// }
 	fmt.Printf("%d Files Errored:\n", info.NumFilesError)
 	for _, f := range info.FilesError {
 		fmt.Println(" -", f)
-		// fmt.Printf(" - >%s<\n", f)
 	}
 }
 
@@ -80,8 +69,8 @@ func dumpDecoderInfo(ext string) {
 	}
 }
 
+// Fallback to use the file system modification time if we don't have anything else
 func decodeDateTakenFromLStat(moveInfo *photorg.MoveInfo) error {
 	moveInfo.DateTaken = pathtools.ModTime(moveInfo.SourcePath)
-	// log.Printf("%s -> %s\n", moveInfo.SourcePath, moveInfo.DateTaken)
 	return nil
 }

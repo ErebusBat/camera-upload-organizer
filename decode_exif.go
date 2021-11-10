@@ -1,8 +1,9 @@
 package photorg
 
 import (
-	"github.com/rwcarlsen/goexif/exif"
 	"os"
+
+	"github.com/rwcarlsen/goexif/exif"
 )
 
 func init() {
@@ -10,7 +11,7 @@ func init() {
 		".jpg",
 		".jpeg",
 	}
-	registerSystemDecoders(handledExts, 0, "Exif", decodeDateTakenExif)
+	registerSystemDecoders(handledExts, 1, "Exif", decodeDateTakenExif)
 }
 
 func decodeDateTakenExif(moveInfo *MoveInfo) error {
